@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-Based ATS-Friendly Resume Creation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #bdc3c7;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--light-bg);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn.success {
+            background-color: var(--success-color);
+        }
+
+        .btn.success:hover {
+            background-color: #229954;
+        }
+
+        .btn.danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn.danger:hover {
+            background-color: #c0392b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Auth Container */
+        .auth-container {
+            max-width: 500px;
+            margin: 3rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Resume Builder Layout */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 2rem;
+            border-right: 1px solid var(--border-color);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            padding: 2rem;
+            background: #fafafa;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .subsection {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .add-btn {
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-btn:hover {
+            background-color: #229954;
+        }
+
+        .remove-btn {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            float: right;
+        }
+
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Resume Preview */
+        .resume-preview {
+            background: white;
+            padding: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+
+        .resume-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .resume-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+            font-weight: 700;
+        }
+
+        .resume-header .title {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .resume-header .contact-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .resume-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .resume-section h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 0.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .resume-entry {
+            margin-bottom: 0.8rem;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .entry-title {
+            font-weight: 600;
+        }
+
+        .entry-subtitle {
+            font-style: italic;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .entry-date {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .entry-description {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .skill-tag {
+            background-color: var(--light-bg);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--secondary-color);
+        }
+
+        /* ATS Score Card */
+        .score-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-main {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.2);
+            padding: 0.8rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .score-item .label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+        }
+
+        .score-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .suggestions {
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .suggestions h3 {
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .suggestions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .suggestions li {
+            padding: 0.3rem 0 0.3rem 1.5rem;
+            position: relative;
+            color: var(--text-dark);
+        }
+
+        .suggestions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--warning-color);
+        }
+
+        .keyword-section {
+            background: #e8f4f8;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .keyword-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .keyword-category {
+            margin-bottom: 0.8rem;
+        }
+
+        .keyword-category-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .keyword-tag {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .keyword-tag:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid var(--success-color);
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-left: 4px solid var(--danger-color);
+            color: #721c24;
+        }
+
+        @media (max-width: 1024px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .form-section, .btn, .score-card, .suggestions, .keyword-section, header {
+                display: none !important;
+            }
+            .builder-container {
+                grid-template-columns: 1fr;
+                box-shadow: none;
+                border: none;
+            }
+            .preview-section {
+                max-width: 8.5in;
+                margin: 0 auto;
+                padding: 0;
+                background: white;
+            }
+            .resume-preview {
+                border: none;
+                box-shadow: none;
+                font-size: 11pt;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="homePage">
+        <header>
+            <h1>Web-Based ATS-Friendly Resume Creation System</h1>
+            <p>Build, analyze, and optimize resumes for Applicant Tracking Systems</p>
+            <button class="btn" onclick="goToPage('builderPage')">Build Resume</button>
+            <button class="btn success" onclick="goToPage('scannerPage')">ATS Scan</button>
+            <button class="btn danger" onclick="logout()" style="margin-left: 1rem;">Logout</button>
+        </header>
+
+        <div class="container">
+            <div style="text-align: center; margin: 3rem 0;">
+                <h2>Why ATS-Friendly Resumes Matter</h2>
+                <p style="font-size: 1.1rem; color: var(--text-light); margin-top: 1rem;">
+                    Applicant Tracking Systems screen 98% of resumes. Optimize yours for maximum visibility.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0;">
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">📝 Easy to Use</h3>
+                    <p>Build professional, ATS-friendly resumes with our intuitive builder.</p>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">✓ ATS Optimized</h3>
+                    <p>Real-time feedback on your resume's ATS compatibility with keyword analysis.</p>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">📊 Score & Improve</h3>
+                    <p>Receive actionable suggestions to improve your ATS score.</p>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">💾 Print Ready</h3>
+                    <p>Export your resume as PDF with ATS-friendly formatting.</p>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">🔒 Private & Secure</h3>
+                    <p>Your resume data is stored locally in your browser.</p>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">⚡ Fast & Reliable</h3>
+                    <p>Instant ATS analysis powered by AI algorithms.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Builder Page -->
+    <div id="builderPage" class="hidden">
+        <header>
+            <h1>Resume Builder</h1>
+            <p>Create and optimize your ATS-friendly resume</p>
+            <button class="btn" onclick="goToPage('homePage')">Home</button>
+            <button class="btn danger" onclick="clearResume()">Clear</button>
+        </header>
+
+        <div class="container">
+            <div class="builder-container">
+                <!-- Form Section -->
+                <div class="form-section">
+                    <div class="section-title">Personal Details</div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="John Doe" onchange="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Professional Title</label>
+                        <input type="text" id="jobTitle" placeholder="Software Engineer" onchange="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="your@email.com" onchange="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="phone" placeholder="+1 (555) 123-4567" onchange="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="location" placeholder="City, State" onchange="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Job Role</label>
+                        <input type="text" id="targetRole" placeholder="e.g., Software Engineer" onchange="loadKeywordSuggestions()">
+                    </div>
+
+                    <div class="section-title">Professional Summary</div>
+                    <div class="form-group">
+                        <label>Summary</label>
+                        <textarea id="summary" placeholder="Brief overview of your professional background and key strengths..." onchange="updatePreview()"></textarea>
+                    </div>
+
+                    <div class="section-title">Skills</div>
+                    <div class="form-group">
+                        <label>Skills (comma-separated)</label>
+                        <textarea id="skills" placeholder="e.g., Python, Java, React, AWS, Project Management" onchange="updatePreview()"></textarea>
+                    </div>
+                    <div id="keywordContainer"></div>
+
+                    <div class="section-title">Work Experience</div>
+                    <div id="experienceList"></div>
+                    <button class="add-btn" onclick="addExperience()">+ Add Experience</button>
+
+                    <div class="section-title">Education</div>
+                    <div id="educationList"></div>
+                    <button class="add-btn" onclick="addEducation()">+ Add Education</button>
+
+                    <div class="section-title">Projects</div>
+                    <div id="projectsList"></div>
+                    <button class="add-btn" onclick="addProject()">+ Add Project</button>
+
+                    <div class="section-title">Certifications</div>
+                    <div id="certificationsList"></div>
+                    <button class="add-btn" onclick="addCertification()">+ Add Certification</button>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn success" onclick="saveResume()">Save Resume</button>
+                        <button class="btn" onclick="calculateATS()">Calculate ATS Score</button>
+                        <button class="btn" onclick="downloadPDF()">Download PDF</button>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section">
+                    <div id="scoreContainer"></div>
+                    <div id="previewContainer">
+                        <div class="resume-preview">
+                            <div class="resume-header">
+                                <h1>Your Name</h1>
+                                <div class="title">Professional Title</div>
+                                <div class="contact-info">your@email.com | +1 (555) 123-4567 | City, State</div>
+                            </div>
+                            <p style="color: var(--text-light); font-style: italic;">Start filling in your details to see the preview...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATS Scanner Page -->
+    <div id="scannerPage" class="hidden">
+        <header>
+            <h1>Web-Based ATS-Friendly Resume Creation System</h1>
+            <p>Paste your resume text to analyze ATS compatibility</p>
+            <button class="btn" onclick="goToPage('homePage')">Home</button>
+        </header>
+
+        <div class="container">
+            <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto;">
+                <div class="form-group">
+                    <label>Paste your resume text here:</label>
+                    <textarea id="scanText" placeholder="Paste your resume content..." style="min-height: 300px;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Target Job Role:</label>
+                    <input type="text" id="scanJobRole" placeholder="e.g., Software Engineer" onchange="loadScanKeywords()">
+                </div>
+
+                <div id="scanKeywords"></div>
+
+                <button class="btn success" onclick="scanResume()" style="width: 100%; margin-bottom: 2rem;">Scan Resume</button>
+
+                <div id="scanResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let experienceCount = 0;
+        let educationCount = 0;
+        let projectCount = 0;
+        let certificationCount = 0;
+
+        const keywords = {
+            'Software Engineer': {
+                'Programming Languages': ['Python', 'Java', 'JavaScript', 'C++', 'Go', 'Rust'],
+                'Frameworks': ['React', 'Django', 'Spring', 'Node.js', 'Vue.js', 'Angular'],
+                'Tools': ['Git', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'Jenkins'],
+                'Concepts': ['REST API', 'Microservices', 'Database Design', 'System Design', 'OOP', 'SOLID Principles']
+            },
+            'Data Scientist': {
+                'Programming Languages': ['Python', 'R', 'SQL', 'Scala'],
+                'Libraries': ['Pandas', 'NumPy', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Matplotlib'],
+                'Tools': ['Jupyter', 'SQL', 'Spark', 'Hadoop', 'Tableau', 'Power BI'],
+                'Concepts': ['Machine Learning', 'Deep Learning', 'Statistical Analysis', 'Data Visualization', 'Neural Networks']
+            },
+            'Project Manager': {
+                'Methodologies': ['Agile', 'Scrum', 'Kanban', 'Waterfall', 'Lean', 'Six Sigma'],
+                'Skills': ['Leadership', 'Risk Management', 'Budget Planning', 'Stakeholder Management', 'Communication'],
+                'Tools': ['Jira', 'Microsoft Project', 'Asana', 'Monday.com', 'Trello'],
+                'Concepts': ['Timeline Management', 'Resource Allocation', 'Quality Assurance', 'Change Management']
+            }
+        };
+
+        function goToPage(pageId) {
+            document.querySelectorAll('[id$="Page"]').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            document.body.insertBefore(alert, document.body.firstChild);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        function addExperience() {
+            const id = `exp_${++experienceCount}`;
+            const html = `
+                <div class="subsection" id="${id}">
+                    <input type="text" placeholder="Job Title" class="exp-title" onchange="updatePreview()">
+                    <input type="text" placeholder="Company Name" class="exp-company" onchange="updatePreview()">
+                    <input type="text" placeholder="Start Date" class="exp-start" onchange="updatePreview()">
+                    <input type="text" placeholder="End Date (or Present)" class="exp-end" onchange="updatePreview()">
+                    <textarea placeholder="Job Description/Achievements" class="exp-description" onchange="updatePreview()"></textarea>
+                    <button class="remove-btn" onclick="removeElement('${id}')">Remove</button>
+                </div>
+            `;
+            document.getElementById('experienceList').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addEducation() {
+            const id = `edu_${++educationCount}`;
+            const html = `
+                <div class="subsection" id="${id}">
+                    <input type="text" placeholder="School/University Name" class="education-school" onchange="updatePreview()">
+                    <input type="text" placeholder="Degree & Field" class="education-degree" onchange="updatePreview()">
+                    <input type="text" placeholder="Graduation Date" class="education-date" onchange="updatePreview()">
+                    <input type="text" placeholder="GPA (optional)" class="education-gpa" onchange="updatePreview()">
+                    <button class="remove-btn" onclick="removeElement('${id}')">Remove</button>
+                </div>
+            `;
+            document.getElementById('educationList').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addProject() {
+            const id = `proj_${++projectCount}`;
+            const html = `
+                <div class="subsection" id="${id}">
+                    <input type="text" placeholder="Project Name" class="project-name" onchange="updatePreview()">
+                    <textarea placeholder="Project Description" class="project-description" onchange="updatePreview()"></textarea>
+                    <input type="text" placeholder="Technologies Used" class="project-tech" onchange="updatePreview()">
+                    <input type="url" placeholder="Project Link (optional)" class="project-link" onchange="updatePreview()">
+                    <button class="remove-btn" onclick="removeElement('${id}')">Remove</button>
+                </div>
+            `;
+            document.getElementById('projectsList').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addCertification() {
+            const id = `cert_${++certificationCount}`;
+            const html = `
+                <div class="subsection" id="${id}">
+                    <input type="text" placeholder="Certification Name" class="cert-name" onchange="updatePreview()">
+                    <input type="text" placeholder="Issuing Organization" class="cert-org" onchange="updatePreview()">
+                    <input type="text" placeholder="Issue Date" class="cert-date" onchange="updatePreview()">
+                    <button class="remove-btn" onclick="removeElement('${id}')">Remove</button>
+                </div>
+            `;
+            document.getElementById('certificationsList').insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeElement(id) {
+            document.getElementById(id)?.remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const fullName = document.getElementById('fullName')?.value || 'Your Name';
+            const jobTitle = document.getElementById('jobTitle')?.value || '';
+            const email = document.getElementById('email')?.value || '';
+            const phone = document.getElementById('phone')?.value || '';
+            const location = document.getElementById('location')?.value || '';
+            const summary = document.getElementById('summary')?.value || '';
+            const skills = document.getElementById('skills')?.value || '';
+
+            let html = `<div class="resume-preview">
+                <div class="resume-header">
+                    <h1>${fullName}</h1>
+                    ${jobTitle ? `<div class="title">${jobTitle}</div>` : ''}
+                    <div class="contact-info">
+                        ${email}${email && phone ? ' | ' : ''}${phone}${(email || phone) && location ? ' | ' : ''}${location}
+                    </div>
+                </div>`;
+
+            if (summary) {
+                html += `<div class="resume-section">
+                    <h2>Professional Summary</h2>
+                    <p>${summary}</p>
+                </div>`;
+            }
+
+            // Experience
+            const exps = document.querySelectorAll('[id^="exp_"]');
+            if (exps.length > 0) {
+                html += '<div class="resume-section"><h2>Work Experience</h2>';
+                exps.forEach(exp => {
+                    const title = exp.querySelector('.exp-title')?.value || '';
+                    const company = exp.querySelector('.exp-company')?.value || '';
+                    const start = exp.querySelector('.exp-start')?.value || '';
+                    const end = exp.querySelector('.exp-end')?.value || '';
+                    const desc = exp.querySelector('.exp-description')?.value || '';
+                    if (title || company) {
+                        html += `<div class="resume-entry">
+                            <div class="entry-header">
+                                <span class="entry-title">${title}</span>
+                                <span class="entry-date">${start}${start && end ? ' – ' : ''}${end}</span>
+                            </div>
+                            <div class="entry-subtitle">${company}</div>
+                            ${desc ? `<div class="entry-description">${desc}</div>` : ''}
+                        </div>`;
+                    }
+                });
+                html += '</div>';
+            }
+
+            // Education
+            const edus = document.querySelectorAll('[id^="edu_"]');
+            if (edus.length > 0) {
+                html += '<div class="resume-section"><h2>Education</h2>';
+                edus.forEach(edu => {
+                    const school = edu.querySelector('.education-school')?.value || '';
+                    const degree = edu.querySelector('.education-degree')?.value || '';
+                    const date = edu.querySelector('.education-date')?.value || '';
+                    const gpa = edu.querySelector('.education-gpa')?.value || '';
+                    if (school || degree) {
+                        html += `<div class="resume-entry">
+                            <div class="entry-header">
+                                <span class="entry-title">${degree}</span>
+                                <span class="entry-date">${date}</span>
+                            </div>
+                            <div class="entry-subtitle">${school}</div>
+                            ${gpa ? `<div class="entry-description">GPA: ${gpa}</div>` : ''}
+                        </div>`;
+                    }
+                });
+                html += '</div>';
+            }
+
+            // Skills
+            if (skills) {
+                html += `<div class="resume-section">
+                    <h2>Skills</h2>
+                    <div class="skills-list">
+                        ${skills.split(',').map(s => `<span class="skill-tag">${s.trim()}</span>`).join('')}
+                    </div>
+                </div>`;
+            }
+
+            // Projects
+            const projs = document.querySelectorAll('[id^="proj_"]');
+            if (projs.length > 0) {
+                html += '<div class="resume-section"><h2>Projects</h2>';
+                projs.forEach(proj => {
+                    const name = proj.querySelector('.project-name')?.value || '';
+                    const desc = proj.querySelector('.project-description')?.value || '';
+                    const tech = proj.querySelector('.project-tech')?.value || '';
+                    if (name || desc) {
+                        html += `<div class="resume-entry">
+                            <div class="entry-title">${name}</div>
+                            ${tech ? `<div class="entry-subtitle">Tech: ${tech}</div>` : ''}
+                            ${desc ? `<div class="entry-description">${desc}</div>` : ''}
+                        </div>`;
+                    }
+                });
+                html += '</div>';
+            }
+
+            // Certifications
+            const certs = document.querySelectorAll('[id^="cert_"]');
+            if (certs.length > 0) {
+                html += '<div class="resume-section"><h2>Certifications</h2>';
+                certs.forEach(cert => {
+                    const name = cert.querySelector('.cert-name')?.value || '';
+                    const org = cert.querySelector('.cert-org')?.value || '';
+                    const date = cert.querySelector('.cert-date')?.value || '';
+                    if (name || org) {
+                        html += `<div class="resume-entry">
+                            <div class="entry-header">
+                                <span class="entry-title">${name}</span>
+                                <span class="entry-date">${date}</span>
+                            </div>
+                            <div class="entry-subtitle">${org}</div>
+                        </div>`;
+                    }
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            document.getElementById('previewContainer').innerHTML = html;
+        }
+
+        function loadKeywordSuggestions() {
+            const role = document.getElementById('targetRole')?.value || '';
+            const roleKeywords = keywords[role];
+
+            if (!roleKeywords) {
+                document.getElementById('keywordContainer').innerHTML = '';
+                return;
+            }
+
+            let html = '<div class="keyword-section"><h3>💡 Suggested Keywords for ' + role + '</h3>';
+            for (const [category, words] of Object.entries(roleKeywords)) {
+                html += `<div class="keyword-category">
+                    <div class="keyword-category-title">${category}</div>
+                    <div class="keyword-list">
+                        ${words.map(w => `<span class="keyword-tag" onclick="addKeywordToSkills('${w}')">${w}</span>`).join('')}
+                    </div>
+                </div>`;
+            }
+            html += '</div>';
+            document.getElementById('keywordContainer').innerHTML = html;
+        }
+
+        function addKeywordToSkills(keyword) {
+            const skillsField = document.getElementById('skills');
+            const currentSkills = skillsField.value.split(',').map(s => s.trim()).filter(s => s);
+            if (!currentSkills.includes(keyword)) {
+                currentSkills.push(keyword);
+                skillsField.value = currentSkills.join(', ');
+                updatePreview();
+            }
+        }
+
+        function calculateATS() {
+            const resumeText = document.getElementById('previewContainer').innerText.toLowerCase();
+            const targetRole = document.getElementById('targetRole')?.value || '';
+            const roleKeywords = keywords[targetRole] || {};
+
+            let matchedKeywords = 0;
+            let totalKeywords = 0;
+
+            for (const words of Object.values(roleKeywords)) {
+                for (const word of words) {
+                    totalKeywords++;
+                    if (resumeText.includes(word.toLowerCase())) {
+                        matchedKeywords++;
+                    }
+                }
+            }
+
+            // Calculate scores
+            const keywordScore = totalKeywords > 0 ? Math.round((matchedKeywords / totalKeywords) * 100) : 0;
+
+            // Section completeness
+            const sections = [
+                document.getElementById('fullName').value,
+                document.getElementById('summary').value,
+                document.getElementById('skills').value,
+                document.querySelectorAll('[id^="edu_"]').length,
+                document.querySelectorAll('[id^="exp_"]').length
+            ].filter(s => s).length;
+
+            const completenessScore = Math.round((sections / 5) * 100);
+
+            // Formatting (ATS-friendly: simple fonts, no tables, proper structure)
+            let formattingScore = 100;
+            if (!document.getElementById('fullName').value) formattingScore -= 20;
+
+            const totalScore = Math.round((keywordScore + completenessScore + formattingScore) / 3);
+
+            const suggestions = [];
+            if (keywordScore < 70) suggestions.push('Add more industry-specific keywords related to ' + targetRole);
+            if (completenessScore < 80) suggestions.push('Complete all resume sections for better ATS compatibility');
+            if (formattingScore < 100) suggestions.push('Ensure simple formatting with standard fonts and no tables');
+
+            const scoreHTML = `
+                <div class="score-card">
+                    <div class="score-main">ATS Score: ${totalScore}%</div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <div class="label">Keyword Match</div>
+                            <div class="value">${keywordScore}%</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="label">Completeness</div>
+                            <div class="value">${completenessScore}%</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="label">Formatting</div>
+                            <div class="value">${formattingScore}%</div>
+                        </div>
+                    </div>
+                    ${suggestions.length > 0 ? `
+                        <div class="suggestions">
+                            <h3>📋 Improvement Suggestions</h3>
+                            <ul>
+                                ${suggestions.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('scoreContainer').innerHTML = scoreHTML;
+            showAlert('ATS Score calculated successfully!');
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('previewContainer');
+            const fullName = document.getElementById('fullName').value || 'Resume';
+            const opt = {
+                margin: 10,
+                filename: fullName + '_Resume.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+            showAlert('Resume downloaded as PDF!');
+        }
+
+        function saveResume() {
+            const data = {
+                fullName: document.getElementById('fullName').value,
+                jobTitle: document.getElementById('jobTitle').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
+                summary: document.getElementById('summary').value,
+                skills: document.getElementById('skills').value,
+                targetRole: document.getElementById('targetRole').value
+            };
+
+            localStorage.setItem('resume_data', JSON.stringify(data));
+            showAlert('Resume saved successfully!');
+        }
+
+        function clearResume() {
+            if (confirm('Clear all resume data? This cannot be undone.')) {
+                document.getElementById('fullName').value = '';
+                document.getElementById('jobTitle').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('location').value = '';
+                document.getElementById('summary').value = '';
+                document.getElementById('skills').value = '';
+                document.getElementById('targetRole').value = '';
+                document.getElementById('experienceList').innerHTML = '';
+                document.getElementById('educationList').innerHTML = '';
+                document.getElementById('projectsList').innerHTML = '';
+                document.getElementById('certificationsList').innerHTML = '';
+                document.getElementById('scoreContainer').innerHTML = '';
+                localStorage.removeItem('resume_data');
+                experienceCount = 0;
+                educationCount = 0;
+                projectCount = 0;
+                certificationCount = 0;
+                updatePreview();
+                showAlert('Resume cleared');
+            }
+        }
+
+        function loadScanKeywords() {
+            const role = document.getElementById('scanJobRole')?.value || '';
+            const roleKeywords = keywords[role];
+
+            if (!roleKeywords) {
+                document.getElementById('scanKeywords').innerHTML = '';
+                return;
+            }
+
+            let html = '<div class="keyword-section"><h3>Keywords to look for in ' + role + '</h3>';
+            for (const [category, words] of Object.entries(roleKeywords)) {
+                html += `<div class="keyword-category">
+                    <div class="keyword-category-title">${category}</div>
+                    <div class="keyword-list">
+                        ${words.map(w => `<span class="keyword-tag">${w}</span>`).join('')}
+                    </div>
+                </div>`;
+            }
+            html += '</div>';
+            document.getElementById('scanKeywords').innerHTML = html;
+        }
+
+        function scanResume() {
+            const text = document.getElementById('scanText')?.value || '';
+            const role = document.getElementById('scanJobRole')?.value || '';
+            const roleKeywords = keywords[role];
+
+            if (!text.trim()) {
+                showAlert('Please paste resume text', 'error');
+                return;
+            }
+
+            if (!roleKeywords) {
+                showAlert('Please select a valid job role', 'error');
+                return;
+            }
+
+            const textLower = text.toLowerCase();
+            let found = {};
+            let totalKeywords = 0;
+            let matchedKeywords = 0;
+
+            for (const [category, words] of Object.entries(roleKeywords)) {
+                found[category] = [];
+                for (const word of words) {
+                    totalKeywords++;
+                    if (textLower.includes(word.toLowerCase())) {
+                        found[category].push(word);
+                        matchedKeywords++;
+                    }
+                }
+            }
+
+            const score = Math.round((matchedKeywords / totalKeywords) * 100);
+
+            let html = `
+                <div class="score-card">
+                    <div class="score-main">Keyword Match Score: ${score}%</div>
+                    <p style="text-align: center; margin: 1rem 0;">Found ${matchedKeywords} out of ${totalKeywords} keywords</p>
+                </div>
+
+                <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+                    <h3 style="margin-bottom: 1rem;">Keywords Found:</h3>
+            `;
+
+            for (const [category, foundWords] of Object.entries(found)) {
+                if (foundWords.length > 0) {
+                    html += `<div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--secondary-color);">${category}</strong>
+                        <div class="skills-list" style="margin-top: 0.5rem;">
+                            ${foundWords.map(w => `<span class="skill-tag" style="background: #d4edda; border: 1px solid var(--success-color);">${w}</span>`).join('')}
+                        </div>
+                    </div>`;
+                }
+            }
+
+            html += `<h3 style="margin: 1.5rem 0 1rem; color: var(--warning-color);">Missing Keywords:</h3>`;
+
+            let missing = [];
+            for (const words of Object.values(roleKeywords)) {
+                for (const word of words) {
+                    if (!textLower.includes(word.toLowerCase())) {
+                        missing.push(word);
+                    }
+                }
+            }
+
+            if (missing.length > 0) {
+                html += `<p style="color: var(--text-light); margin-bottom: 1rem;">Consider adding these keywords to improve ATS score:</p>
+                    <div class="skills-list">
+                        ${missing.slice(0, 10).map(w => `<span class="skill-tag">${w}</span>`).join('')}
+                    </div>`;
+            }
+
+            html += '</div>';
+            document.getElementById('scanResults').innerHTML = html;
+        }
+
+        // Load saved resume on page load
+        window.onload = function() {
+            // Check authentication
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const saved = localStorage.getItem('resume_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('fullName').value = data.fullName || '';
+                document.getElementById('jobTitle').value = data.jobTitle || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('location').value = data.location || '';
+                document.getElementById('summary').value = data.summary || '';
+                document.getElementById('skills').value = data.skills || '';
+                document.getElementById('targetRole').value = data.targetRole || '';
+            }
+        };
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('currentUser');
+                localStorage.removeItem('lastEmail');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
